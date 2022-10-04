@@ -6,7 +6,6 @@ from resources.user import UserRegister
 from resources.item import Item, ItemList
 from resources.store import Store, StoreList
 # from datetime import timedelta
-from db import db
 
 # when working with flask_restful we no longer required jsonify
 app = Flask(__name__)
@@ -31,11 +30,6 @@ jwt = JWT(app, authenticate, identity)
 # send it to the next request we make.
 
 
-@app.before_first_request
-def create_db():
-    db.create_all(app=app)
-
-
 api.add_resource(Item, '/item/<string:name>')
 api.add_resource(ItemList, '/items')
 api.add_resource(UserRegister, '/register')
@@ -43,5 +37,6 @@ api.add_resource(Store, '/store/<string:name>')
 api.add_resource(StoreList, '/stores')
 
 if __name__ == '__main__':
+    from db import db
     db.init_app(app)
     app.run(debug=True)
