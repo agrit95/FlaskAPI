@@ -21,10 +21,10 @@ class Store(Resource):
         store = StoreModel.find_store(name)
         if store:
             store.delete_from_db()
-            return {'message': 'Store deleted successfully'}, 200
+            return {'message': 'Store deleted'}, 200
         return {'message': 'Store does not exists'}, 400
 
 
 class StoreList(Resource):
     def get(self):
-        return {'stores': [store.json() for store in StoreModel.query.all()]}
+        return {'stores': [store.json() for store in StoreModel.find_all()]}
