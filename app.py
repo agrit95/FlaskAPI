@@ -19,22 +19,18 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 app.secret_key = '9jxpe7jrw8has9'
 api = Api(app)
 
-db.init_app(app)
-
-
-@app.before_first_request
-def create_tables():
-    db.create_all()
-
-
 jwt = JWTManager(app)
-
 
 @jwt.additional_claims_loader
 def add_claims_to_jwt(identity):
     if identity == 1:
         return {'isAdmin': True}
     return {'isAdmin': False}
+
+
+@app.before_first_request
+def create_tables():
+    db.create_all()
 
 
 api.add_resource(User, '/user/<int:user_id>')
@@ -46,4 +42,5 @@ api.add_resource(Store, '/store/<string:name>')
 api.add_resource(StoreList, '/stores')
 
 if __name__ == '__main__':
+    db.init_app(app)
     app.run(port=5000, debug=True)
