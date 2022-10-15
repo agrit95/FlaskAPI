@@ -1,7 +1,7 @@
 from db import db
 
 
-class StoreModel(db.Model):
+class StoreModel(db.Model):  # type: ignore
 
     __tablename__ = 'stores'
 
@@ -16,7 +16,7 @@ class StoreModel(db.Model):
     def find_store(cls, name):
         # SELECT * FROM items WHERE name=name LIMIT 1
         return cls.query.filter_by(name=name).first()
-
+    
     @classmethod
     def find_all(cls):
         return cls.query.all()

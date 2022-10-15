@@ -1,7 +1,7 @@
 from db import db
 
 
-class UserModel(db.Model):
+class UserModel(db.Model): # type: ignore
     # showing sqlalchemy the tables name where these models are going to be stored
     __tablename__ = 'users'
     # also the columns the table users contains
@@ -21,7 +21,7 @@ class UserModel(db.Model):
     def find_by_id(cls, _id):
         return cls.query.filter_by(id=_id).first()
     
-    def json(self):
+    def json(self):  # type: ignore
         return {
             'id': self.id,
             'username': self.username
