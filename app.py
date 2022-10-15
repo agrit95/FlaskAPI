@@ -21,11 +21,15 @@ api = Api(app)
 
 jwt = JWTManager(app)
 
+
 @jwt.additional_claims_loader
 def add_claims_to_jwt(identity):
     if identity == 1:
         return {'isAdmin': True}
     return {'isAdmin': False}
+
+
+db.init_app(app)
 
 
 api.add_resource(User, '/user/<int:user_id>')
@@ -37,5 +41,4 @@ api.add_resource(Store, '/store/<string:name>')
 api.add_resource(StoreList, '/stores')
 
 if __name__ == '__main__':
-    db.init_app(app)
     app.run(port=5000, debug=True)
