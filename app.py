@@ -2,11 +2,9 @@ from db import db
 import os
 from flask import Flask
 from flask_restful import Api
-from flask_jwt import JWT
-from db import db
+from flask_jwt_extended import JWTManager
 
-from security import authenticate, identity
-from resources.user import User, UserRegister
+from resources.user import User, UserRegister, UserLogin
 from resources.item import Item, ItemList
 from resources.store import Store, StoreList
 
@@ -21,7 +19,14 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 app.secret_key = '9jxpe7jrw8has9'
 api = Api(app)
 
-jwt = JWT(app, authenticate, identity)
+jwt = JWTManager(app)
+
+
+@jwt.additional_claims_loader
+def add_claims_to_jwt(identity):
+    if identity == 1:
+        return {'isAdmin': True}
+    return {'isAdmin': False}
 
 
 db.init_app(app)
@@ -34,6 +39,7 @@ def create_tables():
 
 api.add_resource(User, '/user/<int:user_id>')
 api.add_resource(UserRegister, '/register')
+api.add_resource(UserLogin, '/login')
 api.add_resource(Item, '/item/<string:name>')
 api.add_resource(ItemList, '/items')
 api.add_resource(Store, '/store/<string:name>')

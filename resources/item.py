@@ -1,5 +1,5 @@
 from flask_restful import Resource, reqparse
-from flask_jwt import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt
 from models.item import ItemModel
 
 
@@ -27,7 +27,11 @@ class Item(Resource):
         item.save_to_db()
         return item.json(), 201
 
+    @jwt_required()
     def delete(self, name):
+        claims = get_jwt()
+        if not claims['isAdmin']:
+            return {'message': 'Admin privilege required for this action'}, 401
         item = ItemModel.find_item(name)
         if item:
             item.delete_from_db()
@@ -42,7 +46,7 @@ class Item(Resource):
         else:
             item = ItemModel(name, **data)
         item.save_to_db()
-        return item.json(), 201
+        return item.json(), 200
 
 
 class ItemList(Resource):
