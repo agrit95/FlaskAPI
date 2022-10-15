@@ -28,11 +28,6 @@ def add_claims_to_jwt(identity):
     return {'isAdmin': False}
 
 
-@app.before_first_request
-def create_tables():
-    db.create_all()
-
-
 api.add_resource(User, '/user/<int:user_id>')
 api.add_resource(UserRegister, '/register')
 api.add_resource(UserLogin, '/login')
@@ -43,4 +38,7 @@ api.add_resource(StoreList, '/stores')
 
 if __name__ == '__main__':
     db.init_app(app)
+    @app.before_first_request
+    def create_tables():
+        db.create_all()
     app.run(port=5000, debug=True)
