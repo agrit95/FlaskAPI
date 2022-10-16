@@ -59,4 +59,4 @@ class ItemList(Resource):
         return {
             'items': [item['name'] for item in items],
             'message': 'More data will be available if you login'
-        }
+        }, 200
