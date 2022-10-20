@@ -85,8 +85,8 @@ BLOCKLIST = {2, 3}
 
 
 @jwt.token_in_blocklist_loader
-def check_if_token_is_revoked(jwt_header, jwt_payload):
-    jti = jwt_payload["jti"]
+def check_if_token_is_revoked(decrypted_token):
+    jti = decrypted_token["jti"]
     return jti in BLOCKLIST
 
 
