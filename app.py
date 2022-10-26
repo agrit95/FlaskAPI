@@ -13,15 +13,16 @@ app = Flask(__name__)
 # app.config['DEBUG'] = True
 
 
-uri = os.getenv("DATABASE_URL")
+# uri = os.getenv("DATABASE_URL")
 # or other relevant config var
-if uri.startswith("postgres://"):  # type: ignore
+""" if uri.startswith("postgres://"):  # type: ignore
     uri = uri.replace("postgres://", "postgresql://", 1)  # type: ignore
-    app.config["SQLALCHEMY_DATABASE_URI"] = uri
+    app.config["SQLALCHEMY_DATABASE_URI"] = uri """
 
 # Only for local run
-# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
-#     'DATABASE_URL', 'sqlite:///data.db')
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+    "DATABASE_URL", "sqlite:///data.db"
+)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["PROPAGATE_EXCEPTIONS"] = True
 app.secret_key = "9jxpe7jrw8has9"
@@ -38,7 +39,7 @@ def add_claims_to_jwt(identity):
 
 
 @jwt.expired_token_loader
-def expired_token_callback():
+def expired_token_callback(jwt_header, jwt_payload):
     return jsonify({"description": "token has expired", "error": "token_expired"}), 401
 
 
@@ -53,7 +54,7 @@ def invalid_token_callback(error):
 
 
 @jwt.unauthorized_loader
-def missing_token_callback(errro):
+def missing_token_callback(error):
     return (
         jsonify(
             {
@@ -74,7 +75,7 @@ def token_not_fresh_callback():
 
 
 @jwt.revoked_token_loader
-def revoked_token_callback():
+def revoked_token_callback(jwt_header, jwt_payload):
     return (
         jsonify({"description": "token has been revoked", "error": "token_revoked"}),
         401,
@@ -85,8 +86,8 @@ BLOCKLIST = {2, 3}
 
 
 @jwt.token_in_blocklist_loader
-def check_if_token_is_revoked(jwt_payload):
-    jti = jwt_payload["jti"]
+def check_if_token_is_revoked(jwt_header, jwt_payload):
+    jti = jwt_payload["sub"]
     return jti in BLOCKLIST
 
 
