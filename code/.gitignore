@@ -2,4 +2,3 @@ __pycache__/
 old_code/
 *.pyc
 instance/
-../venv/
