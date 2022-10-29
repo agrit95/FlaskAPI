@@ -3,8 +3,11 @@ import os
 from flask import Flask, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
+from datetime import timedelta
 
-from resources.user import User, UserRegister, UserLogin, TokenRefresh
+from models.user import TokenBlocklist
+
+from resources.user import User, UserRegister, UserLogin, UserLogout, TokenRefresh
 from resources.item import Item, ItemList
 from resources.store import Store, StoreList
 
@@ -12,6 +15,7 @@ app = Flask(__name__)
 
 # app.config['DEBUG'] = True
 
+ACCESS_EXPIRES = timedelta(hours=1)
 
 # uri = os.getenv("DATABASE_URL")
 # or other relevant config var
@@ -26,6 +30,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["PROPAGATE_EXCEPTIONS"] = True
 app.secret_key = "9jxpe7jrw8has9"
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = ACCESS_EXPIRES
 api = Api(app)
 
 jwt = JWTManager(app)
@@ -58,7 +63,7 @@ def missing_token_callback(error):
     return (
         jsonify(
             {
-                "description": "request does not contain an access token",
+                "description": "request missing access token",
                 "error": "authorization_required",
             }
         ),
@@ -82,13 +87,11 @@ def revoked_token_callback(jwt_header, jwt_payload):
     )
 
 
-BLOCKLIST = {2, 3}
-
-
 @jwt.token_in_blocklist_loader
 def check_if_token_is_revoked(jwt_header, jwt_payload):
-    jti = jwt_payload["sub"]
-    return jti in BLOCKLIST
+    jti = jwt_payload["jti"]
+    token = TokenBlocklist.find_by_jti(jti=jti)
+    return token is not None
 
 
 db.init_app(app)
@@ -102,6 +105,7 @@ def create_tables():
 api.add_resource(User, "/user/<int:user_id>")
 api.add_resource(UserRegister, "/register")
 api.add_resource(UserLogin, "/login")
+api.add_resource(UserLogout, "/logout")
 api.add_resource(TokenRefresh, "/refresh")
 
 api.add_resource(Item, "/item/<string:name>")
